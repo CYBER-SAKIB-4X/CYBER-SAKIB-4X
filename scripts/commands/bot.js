@@ -1,11 +1,14 @@
-const axios = require("axios");
+const { GoogleGenAI } = require("@google/genai");
+
+// অফিশিয়াল জেমিনি ক্লায়েন্ট ইনিশিয়ালাইজ করা
+const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6IDdMi_r1vZx7PsFSUyCxMyDK_5HxuKKyzBYlXI3HNcdg" });
 
 module.exports.config = {
   name: "bot",
-  version: "6.0.0",
+  version: "7.0.0",
   permission: 0,
   credits: "SAKIB AI",
-  description: "Chat with an intelligent bot",
+  description: "Chat with an intelligent bot powered by Gemini API",
   prefix: false,
   premium: false,
   category: "Example",
@@ -13,48 +16,43 @@ module.exports.config = {
   cooldowns: 0
 };
 
-// এআই থেকে উত্তর আনার মূল ফাংশন
-async function getAiReply(userMessage) {
+// জেমিনি এপিআই থেকে সরাসরি চ্যাট রেসপন্স আনার ফাংশন
+async function getGeminiReply(userMessage, userName) {
   try {
-    const encodedMessage = encodeURIComponent(userMessage);
-    const url = `https://api.kenliejugarap.com/ai/?text=${encodedMessage}`;
-    const response = await axios.get(url);
+    const prompt = `তুমি একজন চতুর ও মিষ্টি এআই চ্যাটবট। ব্যবহারকারীর নাম "${userName}"। সে তোমাকে মেসেজ দিয়েছে: "${userMessage}"। খুব সংক্ষিপ্ত, সাবলীল এবং কিছুটা মজার ভাষায় বাংলায় তার উত্তর দাও।`;
     
-    // এপিআই থেকে সরাসরি রেসপন্স টেক্সট রিড করা
-    const reply = response.data?.response || response.data?.result || response.data?.message;
-    if (reply) {
-      return reply;
-    }
-    return "বলো জানু, শুনছি তো! 😌";
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+
+    return response.text || "বলো জানু, শুনছি তো! 😌";
   } catch (error) {
-    console.error("API Error:", error.message);
-    return "আরে একটু সমস্যা হচ্ছে, পরে আবার বলো! 💝";
+    console.error("Gemini API Error:", error.message);
+    return `আরে ${userName}, একটু টেকনিক্যাল সমস্যা হচ্ছে! তবুও বলো কেমন আছো? 💝`;
   }
 }
 
 module.exports.run = async ({ api, event, args }) => {
   const { threadID, messageID, senderID } = event;
   
-  // এখানে কমান্ডের পরের অংশ অথবা পুরো বডি টেক্সট পারফেক্টলি ক্যাচ করা হচ্ছে
   let query = args.join(" ");
   if (!query && event.body) {
-    const prefixMatch = event.body.trim();
-    // যদি প্রিফিক্স বা কমান্ড নাম বাদ দিতে হয়
-    query = prefixMatch.startsWith("bot") ? prefixMatch.slice(3).trim() : prefixMatch;
+    const text = event.body.trim();
+    query = text.toLowerCase().startsWith("bot") ? text.slice(3).trim() : text;
   }
 
   api.getUserInfo(senderID, async (err, result) => {
     if (err) return console.error(err);
     const userName = result[senderID]?.name || "Janu";
 
-    if (!query) {
+    if (!query || query === "") {
       return api.sendMessage(`${userName}, কিছু একটা লিখে বলো জানু! 😌`, threadID, messageID);
     }
 
-    const aiResponse = await getAiReply(query);
-    const finalReply = `${userName}, ${aiResponse}`;
+    const reply = await getGeminiReply(query, userName);
 
-    api.sendMessage(finalReply, threadID, (err, info) => {
+    api.sendMessage(reply, threadID, (err, info) => {
       if (err) return;
       global.client.handleReply.push({
         name: this.config.name,
@@ -73,10 +71,9 @@ module.exports.handleReply = async ({ api, event }) => {
     if (err) return console.error(err);
     const userName = result[senderID]?.name || "Janu";
 
-    const aiResponse = await getAiReply(body);
-    const finalReply = `${userName}, ${aiResponse}`;
+    const reply = await getGeminiReply(body, userName);
 
-    api.sendMessage(finalReply, threadID, (err, info) => {
+    api.sendMessage(reply, threadID, (err, info) => {
       if (err) return;
       global.client.handleReply.push({
         name: this.config.name,
