@@ -2,10 +2,10 @@ const axios = require("axios");
 
 module.exports.config = {
   name: "bot",
-  version: "4.0.0",
+  version: "5.0.0",
   permission: 0,
   credits: "SAKIB AI",
-  description: "Chat with an intelligent bot powered by Gemini API",
+  description: "Chat with an intelligent bot",
   prefix: false,
   premium: false,
   category: "Example",
@@ -13,29 +13,25 @@ module.exports.config = {
   cooldowns: 0
 };
 
-// সরাসরি জেমিনি এপিআই থেকে উত্তর আনার ফাংশন
-async function getGeminiReply(userMessage, userName) {
+// সরাসরি এপিআই থেকে চ্যাট রেসপন্স আনার ফাংশন
+async function getAiReply(userMessage, userName) {
   try {
-    const apiKey = "AQ.Ab8RN6IDdMi_r1vZx7PsFSUyCxMyDK_5HxuKKyzBYlXI3HNcdg";
-    // জেমিনির সঠিক এবং বর্তমান স্ট্যাবল এন্ডপয়েন্ট
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
+    // একটি ফ্রি এবং ফাস্ট পাবলিক এআই এন্ডপয়েন্ট যা সরাসরি চটপটে বাংলায় উত্তর দেয়
+    const encodedMessage = encodeURIComponent(userMessage);
+    const url = `https://api.kenliejugarap.com/ai/?text=${encodedMessage}`;
 
-    const prompt = `তুমি একজন চতুর ও মিষ্টি এআই চ্যাটবট। ব্যবহারকারীর নাম "${userName}"। সে তোমাকে মেসেজ দিয়েছে: "${userMessage}"। খুব সংক্ষিপ্ত, সাবলীল এবং কিছুটা মজার বা চটপটে ভাষায় বাংলায় তার উত্তর দাও।`;
+    const response = await axios.get(url);
+    let reply = response.data?.response || response.data?.result || response.data?.message;
 
-    const response = await axios.post(url, {
-      contents: [{
-        parts: [{ text: prompt }]
-      }]
-    });
-
-    const reply = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (reply) return reply;
+    if (reply) {
+      // উত্তরটিকে একটু শাকিবের স্টাইলের মতো মিষ্টি ও চটপটে করে নেওয়া
+      return `${reply} 😌`;
+    }
     
-    return "বলো জানু, শুনছি তো! 😌";
+    return `বলো ${userName}, শুনছি তো! 🥱`;
   } catch (error) {
-    // ডিবাগ করার জন্য কনসোলে রিয়েল এরর প্রিন্ট করবে
-    console.error("Gemini API Detailed Error:", error.response?.data || error.message);
-    return `আরে ${userName}, একটু টেকনিক্যাল সমস্যা হচ্ছে! তবুও বলো কেমন আছো? 😌`;
+    console.error("AI API Error:", error.message);
+    return `আরে ${userName}, একটু নেটওয়ার্কে সমস্যা করছে! তবুও বলো কেমন আছো? 💝`;
   }
 }
 
@@ -49,7 +45,7 @@ module.exports.run = async ({ api, event, args }) => {
 
     if (!query) {
       return api.sendMessage({
-        body: `${userName}, কিছু একটা লিখেবলো জানu! 😌`,
+        body: `${userName}, কিছু একটা লিখে বলো জানু! 😌`,
         mentions: [{ tag: userName, id: senderID }]
       }, threadID, (err, info) => {
         if (err) return;
@@ -61,7 +57,7 @@ module.exports.run = async ({ api, event, args }) => {
       }, messageID);
     }
 
-    const reply = await getGeminiReply(query, userName);
+    const reply = await getAiReply(query, userName);
 
     api.sendMessage(reply, threadID, (err, info) => {
       if (err) return;
@@ -82,7 +78,7 @@ module.exports.handleReply = async ({ api, event }) => {
     if (err) return console.error(err);
     const userName = result[senderID]?.name || "Janu";
 
-    const reply = await getGeminiReply(body, userName);
+    const reply = await getAiReply(body, userName);
 
     api.sendMessage(reply, threadID, (err, info) => {
       if (err) return;
