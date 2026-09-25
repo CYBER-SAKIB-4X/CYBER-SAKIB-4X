@@ -1,12 +1,12 @@
 module.exports.config = {
   name: "hug",
-  version: "1.0.2",
+  version: "1.0.3",
   permission: 0,
   credits: "IMRAN",
-  description: "Send hug using canvas API",
+  description: "Send hug using mention or message reply",
   prefix: false,
   category: "fun",
-  usages: "hug @mention",
+  usages: "hug [@mention / reply]",
   cooldowns: 5,
 };
 
@@ -16,18 +16,33 @@ const path = require("path");
 const os = require("os");
 
 module.exports.run = async ({ api, event }) => {
-  const { threadID, messageID, senderID, mentions } = event;
+  const { threadID, messageID, senderID, mentions, messageReply } = event;
 
-  // নিখুঁতভাবে মেনশন চেক করার লজিক
+  let mentionID = "";
+  let mentionName = "your friend";
+
+  // ১) মেনশন করা আছে কি না চেক করা
   const mentionIDs = Object.keys(mentions || {});
-  if (mentionIDs.length === 0) {
-    return api.sendMessage("❌ অনুগ্রহ করে কাউকে মেনশন করুন Hug দেওয়ার জন্য!", threadID, messageID);
+  if (mentionIDs.length > 0) {
+    mentionID = mentionIDs[0];
+    mentionName = (mentions[mentionID] || "").replace(/@/g, "").trim();
+  } 
+  // ২) যদি মেনশন না করে কারো মেসেজে রিপ্লাই করা হয়
+  else if (messageReply) {
+    mentionID = messageReply.senderID;
+    try {
+      const userInfo = await api.getUserInfo(mentionID);
+      mentionName = userInfo[mentionID]?.name || "friend";
+    } catch (e) {
+      mentionName = "friend";
+    }
   }
 
-  const mentionID = mentionIDs[0];
-  const mentionName = mentions[mentionID].replace(/@/g, "").trim();
+  // যদি দুটোই না থাকে (কাউকে মেনশন বা রিপ্লাই না করে থাকে)
+  if (!mentionID) {
+    return api.sendMessage("❌ অনুগ্রহ করে কাউকে মেনশন করুন অথবা তার মেসেজে রিপ্লাই দিয়ে 'hug' লিখুন!", threadID, messageID);
+  }
 
-  // সরাসরি ক্যানভাস এপিআই লিংক (অথва তোমার নিজস্ব এপিআই বসাতে পারো)
   const imgURL = `https://api.vyturex.com/hug?one=${encodeURIComponent(senderID)}&two=${encodeURIComponent(mentionID)}`;
 
   try {
