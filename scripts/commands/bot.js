@@ -1,96 +1,100 @@
-const { GoogleGenAI } = require("@google/genai");
-
-// অফিশিয়াল জেমিনি ক্লায়েন্ট ইনিশিয়ালাইজ করা
-const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6IDdMi_r1vZx7PsFSUyCxMyDK_5HxuKKyzBYlXI3HNcdg" });
+const axios = require('axios');
+const fs = require('fs'); 
+const path = require('path');
 
 module.exports.config = {
   name: "bot",
-  version: "7.0.0",
+  version: "1.0.0",
+  aliases: ["mim"],
   permission: 0,
   credits: "SAKIB AI",
-  description: "Chat with an intelligent bot powered by Gemini API",
+  description: "talk with bot",
   prefix: false,
-  premium: false,
-  category: "Example",
-  usages: "[your message]",
-  cooldowns: 0
+  category: "talk",
+  usages: "hi",
+  cooldowns: 5,
 };
 
-// জেমিনি এপিআই থেকে সরাসরি চ্যাট রেসপন্স আনার ফাংশন
-async function getGeminiReply(userMessage, userName) {
-  try {
-    const prompt = `তুমি একজন চতুর ও মিষ্টি এআই চ্যাটবট। ব্যবহারকারীর নাম "${userName}"। সে তোমাকে মেসেজ দিয়েছে: "${userMessage}"। খুব সংক্ষিপ্ত, সাবলীল এবং কিছুটা মজার ভাষায় বাংলায় তার উত্তর দাও।`;
-    
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
-
-    return response.text || "বলো জানু, শুনছি তো! 😌";
-  } catch (error) {
-    console.error("Gemini API Error:", error.message);
-    return `আরে ${userName}, একটু টেকনিক্যাল সমস্যা হচ্ছে! তবুও বলো কেমন আছো? 💝`;
-  }
-}
-
 module.exports.run = async ({ api, event, args }) => {
-  const { threadID, messageID, senderID } = event;
-  
-  let query = args.join(" ");
-  if (!query && event.body) {
-    const text = event.body.trim();
-    query = text.toLowerCase().startsWith("bot") ? text.slice(3).trim() : text;
-  }
+  try {
+    const msg = args.join(" ");
+    const apiData = await axios.get('https://raw.githubusercontent.com/MOHAMMAD-NAYAN-07/Nayan/main/api.json');
+    const apiUrl = apiData.data.sim;
 
-  api.getUserInfo(senderID, async (err, result) => {
-    if (err) return console.error(err);
-    const userName = result[senderID]?.name || "Janu";
-
-    if (!query || query === "") {
-      return api.sendMessage(`${userName}, কিছু একটা লিখে বলো জানু! 😌`, threadID, messageID);
+    if (!msg) {
+      const greetings = [
+        "আহ শুনা আমার তোমার অলিতে গলিতে উম্মাহ😇😘",
+        "কি গো সোনা আমাকে ডাকছ কেনো",
+        "বার বার আমাকে ডাকস কেন😡",
+        "আহ শোনা আমার আমাকে এতো ডাক্তাছো কেনো আসো বুকে আশো🥱",
+        "হুম জান তোমার অইখানে উম্মমাহ😷😘",
+        "আসসালামু আলাইকুম বলেন আপনার জন্য কি করতে পারি",
+        "আমাকে এতো না ডেকে বসকে একটা গফ দে 🙄"
+      ];
+      
+      api.getUserInfo(event.senderID, (err, userInfo) => {
+        const name = userInfo[event.senderID]?.name || "User";
+        const rand = greetings[Math.floor(Math.random() * greetings.length)];
+        
+        return api.sendMessage(`${name}, ${rand}`, event.threadID, (error, info) => {
+          if (error) return;
+          global.client.handleReply.push({
+            type: 'reply',
+            name: this.config.name,
+            messageID: info.messageID,
+            author: event.senderID,
+            head: msg,
+          });
+        }, event.messageID);
+      });
+      return;
     }
 
-    const reply = await getGeminiReply(query, userName);
+    // নরমাল চ্যাট রেসপন্স
+    const response = await axios.get(`${apiUrl}/sim?type=ask&ask=${encodeURIComponent(msg)}`);
+    const replyMessage = response.data.data.msg || "বলো সোনা, শুনছি! 😌";
 
-    api.sendMessage(reply, threadID, (err, info) => {
-      if (err) return;
+    api.sendMessage(replyMessage, event.threadID, (error, info) => {
+      if (error) {
+        return api.sendMessage('An error occurred while processing your request. Please try again later.', event.threadID, event.messageID);
+      }
+
       global.client.handleReply.push({
+        type: 'reply',
         name: this.config.name,
         messageID: info.messageID,
-        author: senderID
+        author: event.senderID,
+        head: msg,
       });
-    }, messageID);
-  });
+    }, event.messageID);
+
+  } catch (error) {
+    console.log(error);
+    api.sendMessage('An error has occurred, please try again later.', event.threadID, event.messageID);
+  }
 };
 
 module.exports.handleReply = async ({ api, event }) => {
-  const { threadID, messageID, senderID, body } = event;
-  if (!body) return;
+  try {
+    if (!event.body) return;
+    const apiData = await axios.get('https://raw.githubusercontent.com/MOHAMMAD-NAYAN-07/Nayan/main/api.json');
+    const apiUrl = apiData.data.sim;
 
-  api.getUserInfo(senderID, async (err, result) => {
-    if (err) return console.error(err);
-    const userName = result[senderID]?.name || "Janu";
+    const response = await axios.get(`${apiUrl}/sim?type=ask&ask=${encodeURIComponent(event.body)}`);
+    const result = response.data.data.msg || "বলো জানু! 🥰";
 
-    const reply = await getGeminiReply(body, userName);
-
-    api.sendMessage(reply, threadID, (err, info) => {
-      if (err) return;
+    api.sendMessage(result, event.threadID, (error, info) => {
+      if (error) return;
       global.client.handleReply.push({
+        type: 'reply',
         name: this.config.name,
         messageID: info.messageID,
-        author: senderID
+        author: event.senderID,
+        head: event.body
       });
-    }, messageID);
-  });
-};
+    }, event.messageID);
 
-module.exports.handleReaction = async ({ api, event }) => {
-  const { reaction, messageReply } = event;
-  if (reaction === '😡' && messageReply) {
-    try {
-      await api.unsendMessage(messageReply.messageID);
-    } catch (err) {
-      console.error(err);
-    }
+  } catch (error) {
+    console.error('Error in handleReply:', error);
   }
 };
