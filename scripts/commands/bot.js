@@ -1,14 +1,14 @@
-const { GoogleGenAI } = require("@google/genai");
+const axios = require("axios");
 
-// তোমার দেওয়া অথরাইজেশন এপিআই কি এখানে সেট করা হলো
-const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6IDdMi_r1vZx7PsFSUyCxMyDK_5HxuKKyzBYlXI3HNcdg" });
+// তোমার জেমিনি এপিআই কি
+const GEMINI_API_KEY = "AQ.Ab8RN6IDdMi_r1vZx7PsFSUyCxMyDK_5HxuKKyzBYlXI3HNcdg";
 
 module.exports.config = {
   name: "bot",
-  version: "7.1.0",
+  version: "7.2.0",
   permission: 0,
   credits: "VAI",
-  description: "Smart AI Chatbot powered by Google Gemini API",
+  description: "Smart AI Chatbot powered by Gemini API via Axios",
   prefix: false,
   premium: false,
   category: "Example",
@@ -16,24 +16,25 @@ module.exports.config = {
   cooldowns: 0
 };
 
-// বটের মূল ব্যক্তিত্ব বা নির্দেশিকা (যাতে সে শাকিব বস এবং তোমার দেওয়া স্টাইলে কথা বলে)
 const systemInstruction = "You are a smart, funny, and slightly sassy Messenger chat bot. You speak in a mix of Bengali, English, and Banglish (like a Gen-Z Messenger user). You occasionally mention your boss 'Sakib' and give witty, cute, or sarcastic replies.";
 
 async function getGeminiReply(userMessage) {
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: userMessage,
-      config: {
-        systemInstruction: systemInstruction,
-        maxOutputTokens: 150,
-        temperature: 0.9,
-      }
-    });
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    return response.text || "Bolo janu, sunchi toh! 😌";
+    const response = await axios.post(url, {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: `${systemInstruction}\n\nUser: ${userMessage}` }]
+        }
+      ]
+    });
+
+    const reply = response.data.candidates[0].content.parts[0].text;
+    return reply || "Bolo janu, sunchi toh! 😌";
   } catch (error) {
-    console.error("Gemini API Error:", error.message);
+    console.error("Gemini API Error:", error.response?.data || error.message);
     return "Babu, ekhonktu byasto achi, pore kotha bolbo! 🙈";
   }
 }
