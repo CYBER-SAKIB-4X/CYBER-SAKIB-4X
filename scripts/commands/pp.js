@@ -4,9 +4,9 @@ const path = require("path");
 
 module.exports.config = {
   name: "pp",
-  version: "1.0.3",
+  version: "1.0.4",
   permission: 0,
-  credits: "Imran",
+  credits: "SAKIB AI",
   prefix: true,
   description: "Send profile picture using UID, mention or reply",
   category: "image",
@@ -27,10 +27,10 @@ module.exports.run = async function ({ api, event, args }) {
     uid = event.senderID;
   }
 
-  const imageUrl = `${global.imranapi.imran}/api/fbp?uid=${uid}`;
-  const filePath = path.join(__dirname, "cache", `${uid}.jpg`);
-
   try {
+    const imageUrl = `https://graph.facebook.com/${uid}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+    const filePath = path.join(__dirname, "cache", `${uid}.jpg`);
+
     const response = await axios.get(imageUrl, { responseType: "stream" });
     await fs.ensureDir(path.dirname(filePath));
     const writer = fs.createWriteStream(filePath);
@@ -44,6 +44,6 @@ module.exports.run = async function ({ api, event, args }) {
     });
   } catch (err) {
     console.error(err);
-    api.sendMessage("❌ প্রোফাইল পিকচার আনতে সমস্যা হয়েছে!", event.threadID, event.messageID);
+    api.sendMessage("❌ প্রোফাইল পিকচার আনতে সমস্যা হয়েছে!", event.threadID, event.messageID);
   }
 };
