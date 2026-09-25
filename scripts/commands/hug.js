@@ -1,6 +1,6 @@
 module.exports.config = {
   name: "hug",
-  version: "1.0.3",
+  version: "1.0.4",
   permission: 0,
   credits: "IMRAN",
   description: "Send hug using mention or message reply",
@@ -21,14 +21,14 @@ module.exports.run = async ({ api, event }) => {
   let mentionID = "";
   let mentionName = "your friend";
 
-  // ১) মেনশন করা আছে কি না চেক করা
+  // ۱) Mentions check
   const mentionIDs = Object.keys(mentions || {});
   if (mentionIDs.length > 0) {
     mentionID = mentionIDs[0];
     mentionName = (mentions[mentionID] || "").replace(/@/g, "").trim();
   } 
-  // ২) যদি মেনশন না করে কারো মেসেজে রিপ্লাই করা হয়
-  else if (messageReply) {
+  // ২) Message Reply check (messenger er alada structure handle korar jonno)
+  else if (messageReply && messageReply.senderID) {
     mentionID = messageReply.senderID;
     try {
       const userInfo = await api.getUserInfo(mentionID);
@@ -38,9 +38,9 @@ module.exports.run = async ({ api, event }) => {
     }
   }
 
-  // যদি দুটোই না থাকে (কাউকে মেনশন বা রিপ্লাই না করে থাকে)
+  // Jodi mention ba reply kichui na thake
   if (!mentionID) {
-    return api.sendMessage("❌ অনুগ্রহ করে কাউকে মেনশন করুন অথবা তার মেসেজে রিপ্লাই দিয়ে 'hug' লিখুন!", threadID, messageID);
+    return api.sendMessage("❌ Onugroho kore karoro messege-e reply diye ba mention kore 'hug' likhun!", threadID, messageID);
   }
 
   const imgURL = `https://api.vyturex.com/hug?one=${encodeURIComponent(senderID)}&two=${encodeURIComponent(mentionID)}`;
@@ -58,19 +58,19 @@ module.exports.run = async ({ api, event }) => {
 
     const ctype = String(resp.headers["content-type"] || "").toLowerCase();
     if (!ctype.startsWith("image/")) {
-      return api.sendMessage("❌ এপিআই থেকে কোনো ছবি পাওয়া যায়নি!", threadID, messageID);
+      return api.sendMessage("❌ API theke kono chobi paoa jayni!", threadID, messageID);
     }
 
     const tmpFile = path.join(os.tmpdir(), `hug_${Date.now()}.png`);
     fs.writeFileSync(tmpFile, Buffer.from(resp.data));
 
     api.sendMessage({
-      body: `🤗 ${mentionName}, তুমি একটি সুন্দর হাগ (Hug) পেয়েছো! 💕`,
+      body: `🤗 ${mentionName}, tumi ekti sundor hug peyecho! 💕`,
       attachment: fs.createReadStream(tmpFile)
     }, threadID, (err) => {
       fs.unlink(tmpFile, () => {});
       if (err) {
-        api.sendMessage("❌ ছবি পাঠানো যায়নি।", threadID);
+        api.sendMessage("❌ Chobi pathano jayni.", threadID);
       }
     }, messageID);
 
