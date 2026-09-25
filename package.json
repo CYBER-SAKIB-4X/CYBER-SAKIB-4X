@@ -1,110 +1,63 @@
-[
-    {
-        "key": "dbln",
-        "value": "%7B%2261594405426475%22%3A%22QbXZCHQW%22%7D",
-        "domain": "facebook.com",
-        "path": "/login/device-based/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "datr",
-        "value": "S04YantZ_nuuQUUxPeOE9RrL",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "sb",
-        "value": "EskbavqXSq4Pd1OrFib3fqLe",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "ps_l",
-        "value": "1",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "ps_n",
-        "value": "1",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "dpr",
-        "value": "1.100000023841858",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "locale",
-        "value": "en_US",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "wd",
-        "value": "1745x866",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "c_user",
-        "value": "61594405426475",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "xs",
-        "value": "12%3AHAmFezPNAXAwyQ%3A2%3A1790354454%3A-1%3A-1%3A%3AAcwK9F-n9BWq0Vef-WdoYOirnB4zwjVFh6KNIiNCXg",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "fr",
-        "value": "1h6w20tI9krfTnR6A.AWc2Iah6GxrcXhZTS8Z-Urvln0U1cyT_IBR8iYHTt7YIUFUFmKk.BqtqQY..AAA.0.0.BqtqQh.AWf3pTejKldKgVHB77JkVV784dQ",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    },
-    {
-        "key": "presence",
-        "value": "C%7B%22lm3%22%3A%22g.1082429854167790%22%2C%22t3%22%3A%5B%5D%2C%22utc3%22%3A1790354487084%2C%22v%22%3A1%7D",
-        "domain": "facebook.com",
-        "path": "/",
-        "hostOnly": false,
-        "creation": "2026-09-25T16:42:00.443Z",
-        "lastAccessed": "2026-09-25T16:42:00.443Z"
-    }
-]
+{
+  "name": "IMRAN",
+  "version": "1.0.5",
+  "description": "simple facebook messenger bot",
+  "main": "main/catalogs/IMRANA.js",
+  "scripts": {
+    "checknames": "node main/botdata/check-names.js",
+    "start": "npm run checknames && node main/catalogs/IMRANA.js",
+    "build": "npm run checknames && node main/catalogs/IMRANA.js",
+    "fix-audit": "npm audit fix",
+    "fix-audit-force": "npm audit fix --force"
+  },
+  "author": "IMRAN",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^0.1.1",
+    "abir-photo360-apis": "^1.0.2",
+    "aes-js": "^3.1.2",
+    "axios": "^1.6.5",
+    "bluebird": "^3.7.2",
+    "chalk": "^4.1.2",
+    "chalkercli": "^1.6.0",
+    "cheerio": "^0.22.0",
+    "child_process": "^1.0.2",
+    "cloudscraper": "^4.6.0",
+    "eval": "^0.1.8",
+    "express": "^4.17.3",
+    "fast-speedtest-api": "^0.3.2",
+    "figlet": "^1.5.2",
+    "filipino-badwords-list": "^1.1.2",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.2.0",
+    "googlethis": "^1.7.1",
+    "gradient-string": "^2.0.0",
+    "https-proxy-agent": "^7.0.6",
+    "jimp": "^0.22.8",
+    "lyrics-finder": "^21.7.0",
+    "moment": "^2.29.1",
+    "moment-timezone": "^0.5.46",
+    "mqtt": "^3.0.0",
+    "nayan-api-servers": "^2.4.8",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^3.3.1",
+    "node-superfetch": "^0.3.3",
+    "nodemailer": "^6.9.16",
+    "npmlog": "^7.0.1",
+    "gauge": "^5.0.2",
+    "are-we-there-yet": "^4.0.2",
+    "openai": "^3.1.0",
+    "path": "^0.12.7",
+    "pidusage": "^4.0.1",
+    "process": "^0.11.10",
+    "request": "^2.88.2",
+    "requests": "^0.3.0",
+    "sequelize": "^6.17.0",
+    "sqlite3": "^5.1.6",
+    "string-similarity": "^4.0.4",
+    "websocket-stream": "^5.5.0",
+    "wikijs": "^6.4.1",
+    "youtube-search-api": "^1.1.1",
+    "ytdl-core": "^4.11.4"
+  }
+}
