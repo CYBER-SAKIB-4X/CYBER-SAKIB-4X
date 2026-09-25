@@ -1,14 +1,13 @@
 module.exports.config = {
   name: "hug",
-  version: "1.0.1",
+  version: "1.0.2",
   permission: 0,
-  credits: "imran",
-  description: "Send hug using canvas API (stable)",
+  credits: "IMRAN",
+  description: "Send hug using canvas API",
   prefix: false,
   category: "fun",
   usages: "hug @mention",
   cooldowns: 5,
-  dependencies: { "axios": "" }
 };
 
 const axios = require("axios");
@@ -17,37 +16,21 @@ const path = require("path");
 const os = require("os");
 
 module.exports.run = async ({ api, event }) => {
-  const { threadID, messageID, senderID } = event;
-  const mentions = event.mentions || {};
+  const { threadID, messageID, senderID, mentions } = event;
 
-  // 0) mention check
-  const mentionIDs = Object.keys(mentions);
+  // নিখুঁতভাবে মেনশন চেক করার লজিক
+  const mentionIDs = Object.keys(mentions || {});
   if (mentionIDs.length === 0) {
-    return api.sendMessage("Please mention someone to hug.", threadID, messageID);
+    return api.sendMessage("❌ অনুগ্রহ করে কাউকে মেনশন করুন Hug দেওয়ার জন্য!", threadID, messageID);
   }
 
-  // 1) base URL check
-  if (!global?.imranapi?.canvas || !/^https?:\/\//.test(global.imranapi.canvas)) {
-    return api.sendMessage(
-      "❌ Canvas API base URL সঠিকভাবে সেট করা নেই। global.imranapi.canvas-এ http/https সহ দিন।",
-      threadID,
-      messageID
-    );
-  }
-
-  // 2) mention info
   const mentionID = mentionIDs[0];
-  const rawMention = mentions[mentionID];
-  const mentionName =
-    (rawMention && typeof rawMention === "object" && rawMention.tag) ?
-      rawMention.tag :
-      (typeof rawMention === "string" ? rawMention.replace(/^@/, "") : "your friend");
+  const mentionName = mentions[mentionID].replace(/@/g, "").trim();
 
-  // 3) build URL
-  const imgURL = `${global.imranapi.canvas}/hug?one=${encodeURIComponent(senderID)}&two=${encodeURIComponent(mentionID)}`;
+  // সরাসরি ক্যানভাস এপিআই লিংক (অথва তোমার নিজস্ব এপিআই বসাতে পারো)
+  const imgURL = `https://api.vyturex.com/hug?one=${encodeURIComponent(senderID)}&two=${encodeURIComponent(mentionID)}`;
 
   try {
-    // 4) fetch image
     const resp = await axios.get(imgURL, {
       responseType: "arraybuffer",
       timeout: 20000,
@@ -60,33 +43,19 @@ module.exports.run = async ({ api, event }) => {
 
     const ctype = String(resp.headers["content-type"] || "").toLowerCase();
     if (!ctype.startsWith("image/")) {
-      const preview = Buffer.from(resp.data).toString("utf8").slice(0, 120);
-      return api.sendMessage(
-        `❌ Hug API ইমেজ দেয়নি (Content-Type: ${ctype || "unknown"}).\n${preview}`,
-        threadID,
-        messageID
-      );
+      return api.sendMessage("❌ এপিআই থেকে কোনো ছবি পাওয়া যায়নি!", threadID, messageID);
     }
 
-    // 5) temp file write
-    const ext =
-      ctype.includes("png") ? "png" :
-      ctype.includes("jpeg") || ctype.includes("jpg") ? "jpg" :
-      ctype.includes("gif") ? "gif" :
-      ctype.includes("webp") ? "webp" : "png";
-
-    const tmpFile = path.join(os.tmpdir(), `hug_${Date.now()}.${ext}`);
+    const tmpFile = path.join(os.tmpdir(), `hug_${Date.now()}.png`);
     fs.writeFileSync(tmpFile, Buffer.from(resp.data));
 
-    // 6) send attachment
     api.sendMessage({
-      body: `🤗 ${mentionName}, you just got a hug!`,
+      body: `🤗 ${mentionName}, তুমি একটি সুন্দর হাগ (Hug) পেয়েছো! 💕`,
       attachment: fs.createReadStream(tmpFile)
     }, threadID, (err) => {
-      // cleanup
       fs.unlink(tmpFile, () => {});
       if (err) {
-        api.sendMessage("❌ ছবি পাঠানো যায়নি (attachment error).", threadID);
+        api.sendMessage("❌ ছবি পাঠানো যায়নি।", threadID);
       }
     }, messageID);
 
