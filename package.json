@@ -13,7 +13,6 @@
   "author": "IMRAN",
   "license": "ISC",
   "dependencies": {
-    "@google/genai": "^0.1.1",
     "abir-photo360-apis": "^1.0.2",
     "aes-js": "^3.1.2",
     "axios": "^1.6.5",
