@@ -1,6 +1,6 @@
 const { GoogleGenAI } = require("@google/genai");
 
-// জেমিনি এপিআই কি সহ ইনিশিয়ালাইজ করা
+// জেমিনি এপিআই ইনিশিয়ালাইজ করা
 const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6IDdMi_r1vZx7PsFSUyCxMyDK_5HxuKKyzBYlXI3HNcdg" });
 
 module.exports.config = {
@@ -16,7 +16,7 @@ module.exports.config = {
   cooldowns: 0
 };
 
-// Cute/funny fallback replies (যদি জেমিনি এপিআইতে কখনো সমস্যা হয়)
+// Cute/funny fallback replies (যদি জেমিনি এপিআইতে কখনো সমস্যা হয়)
 const cuteReplies = [
   "I love you 💝",
   "এ বেডা তোগো GC এর C E O শাকিব কই😌",
@@ -33,7 +33,7 @@ const cuteReplies = [
 // জেমিনি থেকে উত্তর জেনারেট করার ফাংশন
 async function getGeminiReply(userMessage, userName) {
   try {
-    const prompt = `তুমি একজন চতুর ও মিষ্টি এআই চ্যাটবট। ব্যবহারকারীর নাম "${userName}"। সে তোমাকে মেসেজ দিয়েছে: "${userMessage}"। খুব সংক্ষিপ্ত, সাবলীল এবং কিছুটা মজার বা চটপটে ভাষায় বাংলায় তার উত্তর দাও।`;
+    const prompt = `তুমি একজন চতুর ও মিষ্টি এআই চ্যাটবট। ব্যবহারকারীর নাম "${userName}"। সে তোমাকে মেসেজ দিয়েছে: "${userMessage}"। খুব সংক্ষিপ্ত, সাবলীল এবং কিছুটা মজার বা চটপটে ভাষায় বাংলায় তার উত্তর দাও।`;
     
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -43,7 +43,7 @@ async function getGeminiReply(userMessage, userName) {
     return response.text || "Bolo janu, sunchi toh! 😌";
   } catch (error) {
     console.error("Gemini API Error:", error.message);
-    // এরর হলে লোকাল লিস্ট থেকে রেন্ডম একটি ফানি রিপ্লাই দিয়ে দিবে
+    // এরর হলে লোকাল লিস্ট থেকে রেন্ডম একটি ফানি রিপ্লাই দিয়ে দিবে
     return cuteReplies[Math.floor(Math.random() * cuteReplies.length)];
   }
 }
