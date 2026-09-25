@@ -31,7 +31,7 @@
     "fs": "^0.0.1-security",
     "fs-extra": "^11.3.0",
     "googlethis": "^1.8.0",
-    "gradient-string": "^3.0.0",
+    "gradient-string": "^2.0.0",
     "https-proxy-agent": "^7.0.6",
     "jimp": "^1.6.0",
     "lyrics-finder": "^21.7.0",
