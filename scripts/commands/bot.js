@@ -2,10 +2,10 @@ const axios = require("axios");
 
 module.exports.config = {
   name: "bot",
-  version: "2.3.0",
+  version: "2.4.0",
   permission: 0,
   credits: "SAKIB AI",
-  description: "Chat with bot (with API Key support)",
+  description: "Chat with bot (stable version)",
   prefix: false,
   premium: false,
   category: "Example",
@@ -48,8 +48,6 @@ const cuteReplies = [
   "কি হলো, মিস টিস করচ্ছো নাকি 🤣", "Bolo Babu, তুমি কি আমাকে ভালোবাসো? 🙈", "আজকে আমার মন ভালো নেই 🙉"
 ];
 
-const apiKey = "sk-notrack-1d64df196c71b3f8a0ea3980cc184351ee23439e457f67c2";
-
 module.exports.run = async ({ api, event, args }) => {
   const { threadID, messageID, senderID } = event;
   const query = args.join(" ");
@@ -76,12 +74,9 @@ module.exports.run = async ({ api, event, args }) => {
   }
 
   try {
-    const response = await axios.get(`https://www.noobs-api.rf.gd/dipto/baby?text=${encodeURIComponent(query)}&senderID=100075122837809&font=1`, {
-      headers: {
-        "Authorization": `Bearer ${apiKey}`
-      }
-    });
-    const reply = response.data.reply || "I didn't get that. Try asking something else!";
+    // অন্য একটি স্টেবল সিমসিমি এপিআই ব্যবহার করা হলো
+    const response = await axios.get(`https://api.kenliejugarap.com/simsimi/?text=${encodeURIComponent(query)}`);
+    const reply = response.data.respond || response.data.message || "I didn't get that!";
 
     api.sendMessage(reply, threadID, (err, info) => {
       if (err) return;
@@ -100,13 +95,11 @@ module.exports.run = async ({ api, event, args }) => {
 module.exports.handleReply = async ({ api, event }) => {
   const { threadID, messageID, senderID, body } = event;
 
+  if (!body) return;
+
   try {
-    const response = await axios.get(`https://www.noobs-api.rf.gd/dipto/baby?text=${encodeURIComponent(body)}&senderID=100075122837809&font=1`, {
-      headers: {
-        "Authorization": `Bearer ${apiKey}`
-      }
-    });
-    const reply = response.data.reply || "I didn't get that. Try asking something else!";
+    const response = await axios.get(`https://api.kenliejugarap.com/simsimi/?text=${encodeURIComponent(body)}`);
+    const reply = response.data.respond || response.data.message || "I didn't get that!";
 
     api.sendMessage(reply, threadID, (err, info) => {
       if (err) return;
