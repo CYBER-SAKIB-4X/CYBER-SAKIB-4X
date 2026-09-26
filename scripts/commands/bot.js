@@ -2,10 +2,10 @@ const axios = require("axios");
 
 module.exports.config = {
   name: "bot",
-  version: "3.1.0",
+  version: "3.2.0",
   permission: 0,
   credits: "SAKIB AI",
-  description: "Chat with Notrack AI",
+  description: "Chat with Notrack AI API",
   prefix: false,
   premium: false,
   category: "Example",
@@ -13,18 +13,15 @@ module.exports.config = {
   cooldowns: 0
 };
 
-// তোমার Notrack AI এপিআই কি
 const apiKey = "sk-notrack-1d64df196c71b3f8a0ea3980cc184351ee23439e457f67c2";
-
-// Notrack AI এর সঠিক চ্যাট কমপ্লিশন এন্ডপয়েন্ট
-const apiURL = "https://notrack.ai/v1/chat/completions"; 
+const apiURL = "https://notrack.ai/v1/chat/completions";
 
 module.exports.run = async ({ api, event, args }) => {
   const { threadID, messageID, senderID } = event;
   const query = args.join(" ");
 
   if (!query) {
-    return api.sendMessage("❌ অনুগ্রহ করে কিছু লিখে বটকে ডাকুন!", threadID, messageID);
+    return api.sendMessage("মামা, কিছু তো লিখবি নাকি শুধু ডাকিস? 😌", threadID, messageID);
   }
 
   try {
@@ -35,10 +32,11 @@ module.exports.run = async ({ api, event, args }) => {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`
-      }
+      },
+      timeout: 15000
     });
 
-    const reply = response.data.choices[0].message.content.trim() || "I didn't get that!";
+    const reply = response.data.choices[0].message.content.trim();
 
     api.sendMessage(reply, threadID, (err, info) => {
       if (err) return;
@@ -50,8 +48,8 @@ module.exports.run = async ({ api, event, args }) => {
     }, messageID);
 
   } catch (error) {
-    console.error("API Error:", error.response?.data || error.message);
-    api.sendMessage("❌ Notrack এপিআই কানেক্ট করতে সমস্যা হচ্ছে!", threadID, messageID);
+    console.error("Notrack API Error:", error.response?.data || error.message);
+    api.sendMessage("মামা, এপিআই সার্ভার থেকে রেসপন্স আসছে না, একটু পরে ট্রাই কর! 🥱", threadID, messageID);
   }
 };
 
@@ -68,10 +66,11 @@ module.exports.handleReply = async ({ api, event }) => {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`
-      }
+      },
+      timeout: 15000
     });
 
-    const reply = response.data.choices[0].message.content.trim() || "I didn't get that!";
+    const reply = response.data.choices[0].message.content.trim();
 
     api.sendMessage(reply, threadID, (err, info) => {
       if (err) return;
@@ -83,8 +82,8 @@ module.exports.handleReply = async ({ api, event }) => {
     }, messageID);
 
   } catch (error) {
-    console.error("API Error:", error.response?.data || error.message);
-    api.sendMessage("❌ Notrack এপিআই কানেক্ট করতে সমস্যা হচ্ছে!", threadID, messageID);
+    console.error("Notrack API Error:", error.response?.data || error.message);
+    api.sendMessage("মামা, এপিআই সার্ভার থেকে রেসপন্স আসছে না, একটু পরে ট্রাই কর! 🥱", threadID, messageID);
   }
 };
 
