@@ -2,10 +2,10 @@ const axios = require("axios");
 
 module.exports.config = {
   name: "bot",
-  version: "3.0.0",
+  version: "3.1.0",
   permission: 0,
   credits: "SAKIB AI",
-  description: "Chat with AI using custom API key",
+  description: "Chat with Notrack AI",
   prefix: false,
   premium: false,
   category: "Example",
@@ -13,11 +13,11 @@ module.exports.config = {
   cooldowns: 0
 };
 
-// তোমার দেওয়া সিক্রেট এপিআই কি
+// তোমার Notrack AI এপিআই কি
 const apiKey = "sk-notrack-1d64df196c71b3f8a0ea3980cc184351ee23439e457f67c2";
 
-// এপিআই এন্ডপয়েন্ট (যদি আলাদা বেস ইউআরএল থাকে তবে এখানে পরিবর্তন করতে পারো)
-const apiURL = "https://api.openai.com/v1/chat/completions"; 
+// Notrack AI এর সঠিক চ্যাট কমপ্লিশন এন্ডপয়েন্ট
+const apiURL = "https://notrack.ai/v1/chat/completions"; 
 
 module.exports.run = async ({ api, event, args }) => {
   const { threadID, messageID, senderID } = event;
@@ -29,7 +29,7 @@ module.exports.run = async ({ api, event, args }) => {
 
   try {
     const response = await axios.post(apiURL, {
-      model: "gpt-3.5-turbo",
+      model: "notrack-uncensored",
       messages: [{ role: "user", content: query }]
     }, {
       headers: {
@@ -51,7 +51,7 @@ module.exports.run = async ({ api, event, args }) => {
 
   } catch (error) {
     console.error("API Error:", error.response?.data || error.message);
-    api.sendMessage("❌ এপিআই কানেক্ট করতে সমস্যা হচ্ছে! কি অথবা এন্ডপয়েন্ট চেক করুন।", threadID, messageID);
+    api.sendMessage("❌ Notrack এপিআই কানেক্ট করতে সমস্যা হচ্ছে!", threadID, messageID);
   }
 };
 
@@ -62,7 +62,7 @@ module.exports.handleReply = async ({ api, event }) => {
 
   try {
     const response = await axios.post(apiURL, {
-      model: "gpt-3.5-turbo",
+      model: "notrack-uncensored",
       messages: [{ role: "user", content: body }]
     }, {
       headers: {
@@ -84,7 +84,7 @@ module.exports.handleReply = async ({ api, event }) => {
 
   } catch (error) {
     console.error("API Error:", error.response?.data || error.message);
-    api.sendMessage("❌ এপিআই কানেক্ট করতে সমস্যা হচ্ছে!", threadID, messageID);
+    api.sendMessage("❌ Notrack এপিআই কানেক্ট করতে সমস্যা হচ্ছে!", threadID, messageID);
   }
 };
 
